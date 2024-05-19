@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/gameOverTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Te has quedado sin puntos, ¿quieres volver a jugar?"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/yesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sí"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="16dp"/>
+
+        <Button
+            android:id="@+id/noButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

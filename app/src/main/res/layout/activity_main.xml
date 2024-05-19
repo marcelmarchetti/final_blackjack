@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- ImageView para la imagen de fondo -->
+
+    <!-- Toolbar -->
+
+    <ImageView
+        android:id="@+id/backgroundImageView"
+        android:layout_width="408dp"
+        android:layout_height="691dp"
+        android:background="@null"
+        android:src="@drawable/blackjack_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="411dp"
+        android:layout_height="41dp"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/backgroundImageView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    <!-- Otros elementos de tu layout, si es necesario -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

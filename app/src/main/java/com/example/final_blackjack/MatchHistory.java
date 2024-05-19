@@ -33,17 +33,14 @@ public class MatchHistory extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.score_history);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            db = Room.databaseBuilder(getApplicationContext(),
-                    AppDatabase.class, "app-database").build();
-        }
+        db = MyApplication.getDatabase();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             scoreDao = db.scoreDao();
         }
 
         // Configurar Action Bar
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Historial de Partidas");
+            getSupportActionBar().setTitle(getString(R.string.matchHistory_menutitle));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 

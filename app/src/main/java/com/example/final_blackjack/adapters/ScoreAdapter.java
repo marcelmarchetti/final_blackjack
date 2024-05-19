@@ -35,6 +35,8 @@ public class ScoreAdapter extends RecyclerView.Adapter<ScoreAdapter.ScoreViewHol
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             holder.tvScore.setText(String.valueOf(score.score));
             holder.tvDate.setText(score.date.toString());
+            holder.tvLatitude.setText(String.valueOf(score.latitude));
+            holder.tvLongitude.setText(String.valueOf(score.longitude));
         }
     }
 
@@ -47,10 +49,15 @@ public class ScoreAdapter extends RecyclerView.Adapter<ScoreAdapter.ScoreViewHol
         TextView tvScore;
         TextView tvDate;
 
+        TextView tvLatitude;
+        TextView tvLongitude;
+
         public ScoreViewHolder(@NonNull View itemView) {
             super(itemView);
             tvScore = itemView.findViewById(R.id.tvScore);
             tvDate = itemView.findViewById(R.id.tvDate);
+            tvLatitude = itemView.findViewById(R.id.tvLatitude);
+            tvLongitude = itemView.findViewById(R.id.tvLongitude);
         }
     }
 }

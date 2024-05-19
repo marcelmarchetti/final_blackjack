@@ -9,7 +9,7 @@
         android:id="@+id/scoreTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Puntos: 1000"
+        android:text="@string/blackjack_startingpoints"
         android:textSize="24sp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"/>
@@ -18,7 +18,7 @@
         android:id="@+id/currentBetTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Apuesta actual: 0"
+        android:text="@string/blackjack_startingbet"
         android:visibility="gone"
         android:layout_gravity="center"/>
     <!-- Dealer cards -->
@@ -135,13 +135,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:text="Hit" />
+            android:text="@string/blackjack_hit" />
 
         <Button
             android:id="@+id/stayButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stay" />
+            android:text="@string/blackjack_stay" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="400dp"
@@ -151,7 +151,7 @@
             android:id="@+id/closeBetButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cerrar Apuesta"
+            android:text="@string/blackjack_closebet"
             android:layout_centerInParent="true"
             android:layout_margin="10dp">
 
@@ -160,7 +160,7 @@
             android:id="@+id/restartButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reiniciar"
+            android:text="@string/blackjack_restart"
             android:visibility="gone"
             android:layout_centerInParent="true"
             android:layout_margin="10dp"/>
@@ -168,7 +168,7 @@
             android:id="@+id/resetBetButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reiniciar Apuesta"
+            android:text="@string/blackjack_restartbet"
             android:visibility="gone"
             android:layout_centerInParent="true"
             android:layout_margin="10dp">

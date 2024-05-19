@@ -23,7 +23,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-@Database(entities = {Score.class}, version = 1, exportSchema = false)
+@Database(entities = {Score.class}, version = 2, exportSchema = false)
 @TypeConverters({DateConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ScoreDao scoreDao();

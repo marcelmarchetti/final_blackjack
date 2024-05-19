@@ -19,6 +19,9 @@ public class Score {
 
     public LocalDate date;
 
+    public double latitude;
+    public double longitude;
+
     public Score(int score, LocalDate date) {
         this.score = score;
         this.date = date;

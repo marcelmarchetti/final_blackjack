@@ -3,13 +3,19 @@ package com.example.final_blackjack;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toolbar;
 
+import com.example.final_blackjack.services.MusicService;
+
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,9 +23,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Menú Principal");
+            getSupportActionBar().setTitle(getString(R.string.mainmenu_title));
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -39,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.action_options) {
             // Acción para abrir las opciones
             options();
+            return true;
+        } else if (itemId == R.id.action_information) {
+            // Acción para abrir la información
+            Intent intent = new Intent(this, Information.class);
+            startActivity(intent);
             return true;
         } else if (itemId == R.id.action_history) {
             // Acción para mostrar el historial
@@ -62,7 +74,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void options() {
-        // Código para abrir la configuración
+        Intent intent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            intent = new Intent(this, Settings.class);
+        }
+        startActivity(intent);
     }
 
     void showHistory() {
@@ -71,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void exitApp() {
+        Intent musicService = new Intent(this, MusicService.class);
+        stopService(musicService);
         finish();
     }
 }

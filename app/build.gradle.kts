@@ -40,6 +40,9 @@ dependencies {
     implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
 
+    //Location
+    implementation ("com.google.android.gms:play-services-location:19.0.1")
+
     // Room
     implementation("androidx.room:room-common:2.6.1")
     implementation("androidx.room:room-runtime:2.6.1")

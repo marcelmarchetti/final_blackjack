@@ -8,32 +8,57 @@ import com.example.final_blackjack.model.Player;
 import com.example.final_blackjack.model.db.AppDatabase;
 import com.example.final_blackjack.model.db.dao.ScoreDao;
 
+import android.location.Location;
+import android.provider.Settings;
+import android.Manifest;
+
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.room.Room;
-import androidx.room.RoomDatabase;
+import com.example.final_blackjack.R;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.*;
+import android.media.SoundPool;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import androidx.appcompat.app.*;
+
 import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class BlackJack extends AppCompatActivity {
-
+    private static final int REQUEST_LOCATION_PERMISSION = 3;
+    private static final int NOTIFICATION_ID = 1;
+    private static final int ACTION_APP_NOTIFICATION_SETTINGS = 1001;
+    private static final int REQUEST_CODE_PERMISSIONS = 1001;
+    private FusedLocationProviderClient fusedLocationClient;
     int currentBet = 0;
     ScoreDao scoreDao;
 
     int maxScore = 1000;
+
+    double playerLongitude = 0;
+
+    double playerLatitude = 0;
     public static AppDatabase db;
     Chip chipFifty = new Chip(50, "images/chip50.png");
     Chip chipHundred = new Chip(100, "images/chip100.png");
@@ -55,21 +80,30 @@ public class BlackJack extends AppCompatActivity {
     TextView scoreTextView;
     TextView currentBetTextView;
     Button resetBetButton;
+    SoundPool soundPool;
+    int soundIdCard;
+    int soundIdChip;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        requestLocationPermission();
         setContentView(R.layout.board);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            db = Room.databaseBuilder(getApplicationContext(),
-                    AppDatabase.class, "app-database").build();
-        }
+        db = MyApplication.getDatabase();
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("BlackJack");
+            getSupportActionBar().setTitle(getString(R.string.blackjack_menutitle));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         scoreDao = db.scoreDao();
+
+        createNotificationChannel();
+
+        soundPool = new SoundPool.Builder().setMaxStreams(5).build();
+        soundIdCard = soundPool.load(this, R.raw.card, 1);
+        soundIdChip = soundPool.load(this, R.raw.chip_sound, 1);
 
         dealerCardViews = new ImageView[]{
                 findViewById(R.id.dealerCard1View),
@@ -102,14 +136,17 @@ public class BlackJack extends AppCompatActivity {
         currentBetTextView = findViewById(R.id.currentBetTextView);
         resetBetButton = findViewById(R.id.resetBetButton);
         startButton = findViewById(R.id.closeBetButton);
-
+        startButton.setSoundEffectsEnabled(false);
+        hitButton.setSoundEffectsEnabled(false);
         updateScoreUI(scoreTextView);
         updateCurrentBetUI(currentBetTextView);
 
         loadImageFromAssets(chipsViews[0], chipFifty.imagePath);
         loadImageFromAssets(chipsViews[1], chipHundred.imagePath);
         loadImageFromAssets(chipsViews[2], chipFiveHundred.imagePath);
-
+        for (ImageView chipView : chipsViews) {
+            chipView.setSoundEffectsEnabled(false);
+        }
         hitButton.setEnabled(false);
         stayButton.setEnabled(false);
         resetBetButton.setVisibility(View.VISIBLE);
@@ -118,6 +155,7 @@ public class BlackJack extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (currentBet > 0) {
+                    cardSound();
                     resetCardViews(dealerCardViews);
                     resetCardViews(playerCardViews);
                     hitButton.setEnabled(true);
@@ -129,7 +167,7 @@ public class BlackJack extends AppCompatActivity {
                     resultTextView.setText("");
                     startGame();
                 } else {
-                    Toast.makeText(BlackJack.this, "Por favor, realiza una apuesta antes de comenzar el juego", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BlackJack.this, getString(R.string.blackjack_makeabetError), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -145,6 +183,7 @@ public class BlackJack extends AppCompatActivity {
         hitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                cardSound();
                 Card card = deck.remove(deck.size() - 1);
                 player.playerPoints += card.getValue();
                 player.playerAces += card.isAce() ? 1 : 0;
@@ -197,6 +236,7 @@ public class BlackJack extends AppCompatActivity {
         chipsViews[0].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                chipSound();
                 placeBet(chipFifty.value);
             }
         });
@@ -204,6 +244,7 @@ public class BlackJack extends AppCompatActivity {
         chipsViews[1].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                chipSound();
                 placeBet(chipHundred.value);
             }
         });
@@ -211,6 +252,7 @@ public class BlackJack extends AppCompatActivity {
         chipsViews[2].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                chipSound();
                 placeBet(chipFiveHundred.value);
             }
         });
@@ -225,6 +267,7 @@ public class BlackJack extends AppCompatActivity {
             updateCurrentBetUI(currentBetTextView);
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
@@ -236,16 +279,17 @@ public class BlackJack extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void showExitConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("¿Está seguro de que desea salir?");
-        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.blackjack_exitmessage));
+        builder.setPositiveButton(getString(R.string.blackjack_yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Si el usuario hace clic en "Sí", finalizamos la actividad
                 finish();
             }
         });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.blackjack_cancel), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // Si el usuario hace clic en "Cancelar", simplemente cerramos el diálogo
                 dialog.dismiss();
@@ -355,19 +399,30 @@ public class BlackJack extends AppCompatActivity {
 
                 String message = "";
                 if (player.playerPoints > 21) {
-                    message = "You Lose!";
-                    if(player.playerScore <= 0) {
+                    message = getString(R.string.blackjack_loose);
+                    if (player.playerScore <= 0) {
                         Intent intent = new Intent(BlackJack.this, LostScreen.class);
+                        intent.putExtra("maxScore", maxScore);
+                        if (hasWriteCalendarPermission()) {
+                            agregarEventoAlCalendario("BlackJack", "Has perdido con una puntuacion maxima de: " + String.valueOf(maxScore), System.currentTimeMillis(), System.currentTimeMillis() + 3600000);
+                        } else {
+                            requestWriteCalendarPermission();
+                            agregarEventoAlCalendario("BlackJack", "Has perdido con una puntuacion maxima de: " + String.valueOf(maxScore), System.currentTimeMillis(), System.currentTimeMillis() + 3600000);
+                        }
                         startActivity(intent);
                     }
                 } else if (dealer.dealerPoints > 21) {
-                    message = "You Win!";
+                    message = getString(R.string.blackjack_win);
+                    getLastLocation();
+                    showNotification(maxScore);
                     player.playerScore += currentBet * 2;
-                    if(player.playerScore > maxScore) {
+                    if (player.playerScore > maxScore) {
                         maxScore = player.playerScore;
                         Score newScore = null;
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                             newScore = new Score(maxScore, LocalDate.now());
+                            newScore.longitude = playerLongitude;
+                            newScore.latitude = playerLatitude;
                         }
                         scoreDao.insertOrUpdate(newScore)
                                 .subscribeOn(Schedulers.io())
@@ -390,16 +445,20 @@ public class BlackJack extends AppCompatActivity {
                                 throwable.printStackTrace();
                             });
                 } else if (player.playerPoints == dealer.dealerPoints) {
-                    message = "Tie!";
+                    message = getString(R.string.blackjack_tie);
                     player.playerScore += currentBet;
                 } else if (player.playerPoints > dealer.dealerPoints) {
-                    message = "You Win!";
+                    message = getString(R.string.blackjack_win);
+                    showNotification(maxScore);
+                    getLastLocation();
                     player.playerScore += currentBet * 2;
-                    if(player.playerScore > maxScore) {
+                    if (player.playerScore > maxScore) {
                         maxScore = player.playerScore;
                         Score newScore = null;
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                             newScore = new Score(maxScore, LocalDate.now());
+                            newScore.longitude = playerLongitude;
+                            newScore.latitude = playerLatitude;
                         }
                         scoreDao.insertOrUpdate(newScore)
                                 .subscribeOn(Schedulers.io())
@@ -422,9 +481,16 @@ public class BlackJack extends AppCompatActivity {
                                 throwable.printStackTrace();
                             });
                 } else if (player.playerPoints < dealer.dealerPoints) {
-                    message = "You Lose!";
-                    if(player.playerScore <= 0) {
+                    message = getString(R.string.blackjack_loose);
+                    if (player.playerScore <= 0) {
                         Intent intent = new Intent(BlackJack.this, LostScreen.class);
+                        intent.putExtra("maxScore", maxScore);
+                        if (hasWriteCalendarPermission()) {
+                            agregarEventoAlCalendario("BlackJack", "Has perdido con una puntuacion maxima de: " + String.valueOf(maxScore), System.currentTimeMillis(), System.currentTimeMillis() + 3600000);
+                        } else {
+                            requestWriteCalendarPermission();
+                            agregarEventoAlCalendario("BlackJack", "Has perdido con una puntuacion maxima de: " + String.valueOf(maxScore), System.currentTimeMillis(), System.currentTimeMillis() + 3600000);
+                        }
                         startActivity(intent);
                     }
                 }
@@ -438,6 +504,14 @@ public class BlackJack extends AppCompatActivity {
         }
     }
 
+    private boolean hasWriteCalendarPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestWriteCalendarPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR}, REQUEST_CODE_PERMISSIONS);
+    }
+
     private void resetCardViews(ImageView[] cardViews) {
         for (ImageView cardView : cardViews) {
             cardView.setImageResource(0);
@@ -445,11 +519,11 @@ public class BlackJack extends AppCompatActivity {
     }
 
     private void updateScoreUI(TextView scoreTextView) {
-        scoreTextView.setText("Puntos: " + player.playerScore);
+        scoreTextView.setText(getString(R.string.blackjack_points) + player.playerScore);
     }
 
     private void updateCurrentBetUI(TextView currentBetTextView) {
-        currentBetTextView.setText("Apuesta actual: " + currentBet);
+        currentBetTextView.setText(getString(R.string.blackjack_bet) + currentBet);
         currentBetTextView.setVisibility(View.VISIBLE);
     }
 
@@ -461,7 +535,127 @@ public class BlackJack extends AppCompatActivity {
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "No se pudo cargar la imagen: " + filePath, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.blackjack_errorloadingimage) + filePath, Toast.LENGTH_SHORT).show();
         }
     }
+
+    // Método para reproducir el primer efecto de sonido
+    private void cardSound() {
+        // Reproducir el efecto de sonido 1
+        soundPool.play(soundIdCard, 3, 3, 1, 0, 1);
+    }
+
+    // Método para reproducir el segundo efecto de sonido
+    private void chipSound() {
+        // Reproducir el efecto de sonido 2
+        soundPool.play(soundIdChip, 1, 1, 1, 0, 1);
+    }
+
+    public void agregarEventoAlCalendario(String titulo, String descripcion, long inicio, long fin) {
+        Calendar cal = Calendar.getInstance();
+        Intent intent = new Intent(Intent.ACTION_EDIT);
+        intent.setType("vnd.android.cursor.item/event");
+        intent.putExtra("beginTime", cal.getTimeInMillis());
+        intent.putExtra("allDay", true);
+        intent.putExtra("rrule", "FREQ=YEARLY");
+        intent.putExtra("endTime", cal.getTimeInMillis() + 60 * 60 * 1000);
+        intent.putExtra("title", "A Test Event from android app");
+        startActivity(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permiso concedido, realiza la acción que requiere permisos
+                agregarEventoAlCalendario("BlackJack", "Has perdido con una puntuacion maxima de: " + String.valueOf(maxScore), System.currentTimeMillis(), System.currentTimeMillis() + 3600000);
+            } else {
+                // Permiso denegado, muestra un mensaje o toma una acción alternativa
+                Toast.makeText(this, "Se necesitan permisos de calendario para agregar eventos", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Channel Name";
+            String description = "Channel Description";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("channel_id", name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void showNotification(int maxScore) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
+                .setSmallIcon(R.drawable.back)
+                .setContentTitle(getString(R.string.blackjack_newmaxscore))
+                .setContentText(String.valueOf(maxScore))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        if (!notificationManager.areNotificationsEnabled()) {
+            // Solicitar permiso para mostrar notificaciones
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra("android.provider.extra.APP_PACKAGE", getPackageName());
+            startActivity(intent);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+
+
+
+    }
+
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        } else {
+            // Permiso ya concedido
+            getLastLocation();
+        }
+    }
+
+
+    public void onRequestPermissionsLocationResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permiso concedido
+                getLastLocation();
+            } else {
+                // Permiso denegado
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void getLastLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations, this can be null.
+                            if (location != null) {
+                                // Logic to handle location object
+                                playerLatitude = location.getLatitude();
+                                playerLongitude = location.getLongitude();
+
+                            }
+                        }
+                    });
+        }
+    }
+
 }

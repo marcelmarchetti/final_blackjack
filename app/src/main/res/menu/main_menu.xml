@@ -4,15 +4,18 @@
 
     <item
         android:id="@+id/action_start_game"
-        android:title="Empezar Juego"/>
+        android:title="@string/dropdown_startgame"/>
     <item
         android:id="@+id/action_options"
-        android:title="Configuración"/>
+        android:title="@string/dropdown_settings"/>
     <item
         android:id="@+id/action_history"
-        android:title="Historial de Partidas"/>
+        android:title="@string/dropdown_historymatch"/>
+    <item
+        android:id="@+id/action_information"
+        android:title="@string/dropdown_information"/>
 
     <item
         android:id="@+id/action_exit"
-        android:title="Salir"/>
+        android:title="@string/dropdown_exit"/>
 </menu>

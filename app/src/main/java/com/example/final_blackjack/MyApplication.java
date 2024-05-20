@@ -12,6 +12,8 @@ import androidx.room.Room;
 
 import com.example.final_blackjack.model.db.AppDatabase;
 import com.example.final_blackjack.services.MusicService;
+import com.google.firebase.Firebase;
+import com.google.firebase.FirebaseApp;
 
 public class MyApplication extends Application {
 

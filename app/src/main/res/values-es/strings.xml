@@ -1,6 +1,8 @@
 <resources>
+    <string name="default_web_client_id">151748741484-15171ppb5v95mnc5atgo5ma0kch1je60.apps.googleusercontent.com</string>
     <string name="app_name">final_blackjack</string>
     <string name="dropdown_startgame">Comenzar Juego</string>
+    <string name="dropdown_topscores">Puntuaciones maximas</string>
     <string name="dropdown_settings">Ajustes</string>
     <string name="dropdown_historymatch">Historial de Partidas</string>
     <string name="dropdown_information">Información</string>

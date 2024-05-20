@@ -12,6 +12,9 @@
         android:id="@+id/action_history"
         android:title="@string/dropdown_historymatch"/>
     <item
+        android:id="@+id/action_top_scores"
+        android:title="@string/dropdown_historymatch"/>
+    <item
         android:id="@+id/action_information"
         android:title="@string/dropdown_information"/>
 

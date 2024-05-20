@@ -1,6 +1,9 @@
 
 plugins {
     id("com.android.application")
+    // Add the dependency for the Google services Gradle plugin
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -36,6 +39,27 @@ android {
 }
 
 dependencies {
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+
+
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-auth:21.0.3")  // o la versión más reciente
+    implementation ("com.google.android.gms:play-services-auth:20.2.0")  // o la versión más reciente
+    implementation ("com.google.firebase:firebase-firestore:24.3.1")
+
+
+    // Gson
+    implementation ("com.google.code.gson:gson:2.8.8")
+
+    // Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.4.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
@@ -59,3 +83,5 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }
+
+

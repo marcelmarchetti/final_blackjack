@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "151748741484",
+    "project_id": "blackjack-uoc",
+    "storage_bucket": "blackjack-uoc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151748741484:android:d80d0ab8256ad69833cb49",
+        "android_client_info": {
+          "package_name": "com.example.final_blackjack"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "151748741484-b5kosf39lpgi3algd8ddd18mtbua45t5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.final_blackjack",
+            "certificate_hash": "b63725f30d6d18d13955d912de8ab581b4b6e966"
+          }
+        },
+        {
+          "client_id": "151748741484-15171ppb5v95mnc5atgo5ma0kch1je60.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPCHH7s_tgVwJqYqKC1r40rcBDQ5gilXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "151748741484-15171ppb5v95mnc5atgo5ma0kch1je60.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

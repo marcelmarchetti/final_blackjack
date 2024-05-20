@@ -30,9 +30,13 @@ import android.media.SoundPool;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+
+import com.example.final_blackjack.utils.FireStore;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import androidx.appcompat.app.*;
 
 import java.io.*;
@@ -83,12 +87,14 @@ public class BlackJack extends AppCompatActivity {
     SoundPool soundPool;
     int soundIdCard;
     int soundIdChip;
+    private FirebaseFirestore dbFirebase;
 
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dbFirebase = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         requestLocationPermission();
         setContentView(R.layout.board);
@@ -104,7 +110,7 @@ public class BlackJack extends AppCompatActivity {
         soundPool = new SoundPool.Builder().setMaxStreams(5).build();
         soundIdCard = soundPool.load(this, R.raw.card, 1);
         soundIdChip = soundPool.load(this, R.raw.chip_sound, 1);
-
+        player.playerName = getIntent().getStringExtra("playerName");
         dealerCardViews = new ImageView[]{
                 findViewById(R.id.dealerCard1View),
                 findViewById(R.id.dealerCard2View),

@@ -47,6 +47,8 @@
             android:exported="true"/>
         <activity android:name=".MatchHistory"
             android:exported="true"/>
+        <activity android:name=".TopScores"
+            android:exported="true"/>
     </application>
 
 </manifest>
